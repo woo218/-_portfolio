@@ -9,13 +9,14 @@
       display: flex;
       justify-content: center;
       padding: 40px;
+      background-color: #f4f4f4;
     }
     form {
       width: 500px;
       border: 1px solid #ccc;
       padding: 20px;
       border-radius: 8px;
-      background-color: #f9f9f9;
+      background-color: #fff;
     }
     fieldset {
       margin-bottom: 20px;
@@ -34,29 +35,38 @@
       padding: 6px;
       margin-top: 4px;
     }
+    .checkbox-group, .radio-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
   </style>
 
   <script>
     function submitForm(event) {
       event.preventDefault();
 
-      const formData = new FormData(document.getElementById("infoForm"));
-      const params = new URLSearchParams();
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const region = document.getElementById("region").value;
+      const interests = Array.from(document.querySelectorAll('input[name="interest"]:checked')).map(el => el.value).join(', ');
+      const gender = document.querySelector('input[name="gender"]:checked')?.value || '';
+      const major = document.getElementById("major").value;
+      const message = document.getElementById("message").value;
 
-      for (const pair of formData.entries()) {
-        params.append(pair[0], pair[1]);
-      }
+      const data = `name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&region=${encodeURIComponent(region)}&interests=${encodeURIComponent(interests)}&gender=${encodeURIComponent(gender)}&major=${encodeURIComponent(major)}&message=${encodeURIComponent(message)}`;
 
-      fetch("<<구글 앱스 스크립트 웹앱 주소>>", {
+      fetch("<<https://script.google.com/macros/s/AKfycbzz9GtSVLToMWo7NFfUQnVSEnfcX_-8yczbXV50xWnOOhAJmCRuFHpoTRSI-9hwqApA9Q/exec>>", {
         method: "POST",
         mode: "no-cors",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         },
-        body: params.toString()
+        body: data
       })
       .then(() => {
         alert("제출이 완료되었습니다!");
+        document.getElementById("infoForm").reset();
       })
       .catch(error => {
         alert("제출 실패: " + error.message);
@@ -72,50 +82,68 @@
 
       <!-- (1) 일반 텍스트 -->
       <label for="name">이름</label>
-      <input type="text" id="name" name="name" placeholder="홍길동" required>
+      <input type="text" id="name" name="name" placeholder="예: 홍길동" required>
 
       <!-- (2) 이메일 -->
       <label for="email">이메일</label>
-      <input type="email" id="email" name="email" placeholder="example@example.com" required>
+      <input type="email" id="email" name="email" placeholder="예: example@example.com" required>
 
       <!-- (3) datalist -->
-      <label for="city">사는 지역 (선택 가능)</label>
-      <input list="cities" id="city" name="city" placeholder="서울">
-      <datalist id="cities">
+      <label for="region">사는 지역</label>
+      <input list="regionList" id="region" name="region" placeholder="예: 서울">
+      <datalist id="regionList">
         <option value="서울">
         <option value="부산">
-        <option value="대구">
+        <option value="대전">
         <option value="광주">
       </datalist>
     </fieldset>
 
     <fieldset>
-      <legend>선택 항목</legend>
+      <legend>추가 정보</legend>
 
       <!-- (4) 체크박스 -->
       <label>관심 있는 항목 (복수 선택)</label>
-      <input type="checkbox" name="interest" value="웹개발"> 웹개발
-      <input type="checkbox" name="interest" value="AI"> AI
-      <input type="checkbox" name="interest" value="디자인"> 디자인
+      <div style="margin-top: 6px;">
+        <label style="display: block;">
+          <input type="checkbox" name="interest" value="웹개발"> 웹개발
+        </label>
+        <label style="display: block;">
+          <input type="checkbox" name="interest" value="AI"> AI
+        </label>
+        <label style="display: block;">
+          <input type="checkbox" name="interest" value="디자인"> 디자인
+        </label>
+      </div>
+      
 
       <!-- (5) 라디오버튼 -->
       <label>학년 선택</label>
-      <input type="radio" name="grade" value="1학년" required> 1학년
-      <input type="radio" name="grade" value="2학년"> 2학년
-      <input type="radio" name="grade" value="3학년"> 3학년
+      <div style="margin-top: 6px;">
+        <label style="display: block;">
+          <input type="radio" name="grade" value="1학년" required> 1학년
+        </label>
+        <label style="display: block;">
+          <input type="radio" name="grade" value="2학년"> 2학년
+        </label>
+        <label style="display: block;">
+          <input type="radio" name="grade" value="3학년"> 3학년
+        </label>
+      </div>
+      
 
       <!-- (6) 콤보박스 -->
-      <label for="language">선호하는 언어</label>
-      <select id="language" name="language" required>
-        <option value="">선택하세요</option>
-        <option value="HTML">HTML</option>
-        <option value="Python">Python</option>
-        <option value="JavaScript">JavaScript</option>
+      <label for="major">전공 선택</label>
+      <select id="major" name="major" required>
+        <option value="">전공을 선택하세요</option>
+        <option value="컴퓨터공학과">컴퓨터공학과</option>
+        <option value="AI학과">AI학과</option>
+        <option value="디자인학과">디자인학과</option>
       </select>
 
-      <!-- (7) 여러줄 텍스트 -->
-      <label for="feedback">기타 하고 싶은 말</label>
-      <textarea id="feedback" name="feedback" rows="4" placeholder="추가로 남기고 싶은 의견이 있다면 적어주세요 :)"></textarea>
+      <!-- (7) 여러 줄 텍스트 -->
+      <label for="message">하고 싶은 말</label>
+      <textarea id="message" name="message" rows="4" placeholder="추가 의견이나 하고 싶은 말을 자유롭게 작성해주세요 :)"></textarea>
     </fieldset>
 
     <button type="submit">제출</button>
@@ -123,5 +151,7 @@
 
 </body>
 </html>
+
  
+
 
